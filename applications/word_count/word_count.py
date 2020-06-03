@@ -23,6 +23,7 @@ def word_count(s):
 # \s matches any whitespace
 # \' matches the character '
 # +  matches between one and unlimited times, as many times as possible, giving back as needed
+# https://regex101.com/r/iAeuqB/13
 
 if __name__ == "__main__":
     print(word_count(""))
