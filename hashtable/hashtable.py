@@ -37,7 +37,7 @@ class HashTable:
 
         Implement this.
         """
-        return self.capacity
+        return len(self.storage)
 
     def get_load_factor(self):
         """
@@ -208,7 +208,7 @@ class HashTable:
         self.capacity = new_capacity
         self.storage = [None] * new_capacity
 
-        # resize old hash table
+        # resize old hash table/linked lists
         for elem in old_storage:
             if elem:
                 current_node = elem
