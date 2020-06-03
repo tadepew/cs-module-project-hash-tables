@@ -1,7 +1,9 @@
 class HashTableEntry:
+    # Node
     """
     Linked List hash table key/value pair
     """
+
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -21,8 +23,9 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
-
+        self.capacity = capacity
+        self.stored = 0
+        self.storage = [None] * capacity
 
     def get_num_slots(self):
         """
@@ -34,8 +37,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return self.capacity
 
     def get_load_factor(self):
         """
@@ -43,8 +45,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        # number of keys stored divided by capacity
+        return self.stored / self.capacity
 
     def fnv1(self, key):
         """
@@ -53,8 +55,20 @@ class HashTable:
         Implement this, and/or DJB2.
         """
 
-        # Your code here
+        fnv_prime = 1099511628211
+        fnv_offset_basis = 14695981039346656037
 
+        hash_index = fnv_offset_basis
+
+        bytes_representation = key.encode()
+        # encoding key input, gives back bytes that represent the key (usually a string)
+        # now we have a bunch of numbers which we can compute with
+
+        for byte in bytes_representation:
+            hash_index *= fnv_prime
+            hash_index ^= byte
+
+        return hash_index
 
     def djb2(self, key):
         """
@@ -64,14 +78,14 @@ class HashTable:
         """
         # Your code here
 
-
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        # mod with length of data, get the remainder
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -81,8 +95,31 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
 
+        # if no collision, store key value pair
+        if not self.storage[index]:
+            self.storage[index] = HashTableEntry(key, value)
+
+        # if something already exists at that index
+        else:
+            # store pointer to current node
+            current_node = self.storage[index]
+
+            # if not updating a key/value, go to end of list
+            while current_node.key != key and current_node.next:
+                # stored node pointer is now the next node
+                current_node = current_node.next
+
+            # if updating existing entry value
+            if current_node.key == key:
+                current_node.value = value
+
+            # else, add to end of list
+            else:
+                current_node.next = HashTableEntry(key, value)
+
+        self.stored += 1
 
     def delete(self, key):
         """
@@ -92,8 +129,38 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
 
+        # store pointer to current node
+        current_node = self.storage[index]
+
+        if not current_node:
+            print("Key not found.")
+
+        # value to delete is head
+        elif not current_node.next:
+            self.storage[index] = None
+            self.stored -= 1
+
+        else:
+            # store pointer to previous node
+            previous_node = None
+
+            # while key doesn't match and not at end of list, move to next node
+            while current_node.key != key and current_node.next:
+                previous_node = current_node
+                current_node = current_node.next
+
+            # element to delete is at end of list so make next pointer None
+            if not current_node.next:
+                previous_node.next = None
+                self.stored -= 1
+
+            # element to delete is in middle
+            else:
+                # reassign pointers
+                previous_node.next = current_node.next
+                self.stored -= 1
 
     def get(self, key):
         """
@@ -103,8 +170,26 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
 
+        # if node exists, store as current node
+        if self.storage[index]:
+            current_node = self.storage[index]
+
+            # while key doesn't match and there is a next, move to next
+            while current_node.key != key and current_node.next:
+                current_node = current_node.next
+
+            # if at end of list, that is the key
+            if not current_node.next:
+                return current_node.value
+
+            # else, that node is the correct node
+            else:
+                return current_node.value
+
+        else:
+            return None
 
     def resize(self, new_capacity):
         """
@@ -113,10 +198,11 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
 
 
-
+# this means we are running from the command line
+# otherwise we are being imported
+# therefore this will only run in this .py file from the command line
 if __name__ == "__main__":
     ht = HashTable(8)
 
