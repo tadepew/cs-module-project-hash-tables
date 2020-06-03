@@ -97,11 +97,12 @@ class HashTable:
         """
         index = self.hash_index(key)
 
-        # if no collision, store key value pair
+        # if no collision, store key value pair as the head of a linked list
         if not self.storage[index]:
             self.storage[index] = HashTableEntry(key, value)
+            self.stored += 1
 
-        # if something already exists at that index
+        # if something already exists at that index, add to linked list
         else:
             # store pointer to current node
             current_node = self.storage[index]
@@ -118,8 +119,10 @@ class HashTable:
             # else, add to end of list
             else:
                 current_node.next = HashTableEntry(key, value)
+                self.stored += 1
 
-        self.stored += 1
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity * 2)
 
     def delete(self, key):
         """
@@ -198,6 +201,21 @@ class HashTable:
 
         Implement this.
         """
+        # pointer to old hash table
+        old_storage = self.storage
+
+        # initalize new hash table
+        self.capacity = new_capacity
+        self.storage = [None] * new_capacity
+
+        # resize old hash table
+        for elem in old_storage:
+            if elem:
+                current_node = elem
+
+                while current_node:
+                    self.put(current_node.key, current_node.value)
+                    current_node = current_node.next
 
 
 # this means we are running from the command line
