@@ -1,6 +1,20 @@
-def no_dups(s):
-    # Your code here
+import re
 
+
+def no_dups(s):
+    counts = {}
+    res = ""
+
+    words = s.split()
+
+    for c in words:
+        if c in counts:
+            counts[c] += 1
+        else:
+            counts[c] = 1
+            res += str(c + ' ')
+
+    return res.strip()
 
 
 if __name__ == "__main__":
